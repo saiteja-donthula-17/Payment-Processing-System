@@ -1,0 +1,87 @@
+// This file defines our database schema.
+// Run `npx prisma migrate dev` to apply changes to Postgres.
+// Run `npx prisma generate` to regenerate the client.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  idempotencyKey   String        @unique
+  amount           Decimal       @db.Decimal(12, 2)
+  currency         String        @default("INR")
+  status           PaymentStatus @default(PENDING)
+
+  gatewayReference String?
+  gatewayResponse  Json?
+
+  retryCount       Int           @default(0)
+  maxRetries       Int           @default(3)
+  nextRetryAt      DateTime?
+  lastError        String?
+
+  // Optimistic lock — every update bumps this; stale writers fail.
+  version          Int           @default(0)
+
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  processedAt      DateTime?
+
+  transitions      PaymentTransition[]
+  webhooks         WebhookEvent[]
+
+  @@index([status, nextRetryAt])
+  @@index([idempotencyKey])
+}
+
+model PaymentTransition {
+  id          String        @id @default(uuid())
+  paymentId   String
+  fromStatus  PaymentStatus?
+  toStatus    PaymentStatus
+  reason      String?
+  attempt     Int           @default(0)
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+
+  payment     Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+}
+
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  webhookId   String   @unique
+  paymentId   String
+  eventType   String
+  payload     Json
+  processedAt DateTime @default(now())
+  status      String   @default("processed")
+
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+}
+
+model IdempotencyRecord {
+  key          String   @id
+  paymentId    String?
+  responseCode Int
+  responseBody Json
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}
