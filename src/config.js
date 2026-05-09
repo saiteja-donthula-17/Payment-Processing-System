@@ -21,6 +21,12 @@ module.exports = {
   rateLimitWebhooksMax: parseInt(process.env.RATE_LIMIT_WEBHOOKS_MAX, 10) || 1000,
   rateLimitReadsMax: parseInt(process.env.RATE_LIMIT_READS_MAX, 10) || 500,
 
+  // Circuit breaker around gateway calls
+  circuitBreakerErrorThresholdPct: parseInt(process.env.CB_ERROR_THRESHOLD_PCT, 10) || 50,
+  circuitBreakerResetTimeoutMs: parseInt(process.env.CB_RESET_TIMEOUT_MS, 10) || 30000,
+  circuitBreakerRollingCountTimeoutMs: 10000,
+  circuitBreakerVolumeThreshold: 5,
+
   maxRetries: parseInt(process.env.MAX_RETRIES, 10) || 3,
   retryBaseDelayMs: parseInt(process.env.RETRY_BASE_DELAY_MS, 10) || 500,
   retryCapMs: parseInt(process.env.RETRY_CAP_MS, 10) || 10000,

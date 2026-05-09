@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const CircuitBreaker = require('opossum');
 const config = require('../config');
 const { sleep } = require('../utils/sleep');
 
@@ -63,7 +64,7 @@ async function _simulate(paymentId, amount) {
   return { success: true, gatewayReference: `gw-${uuidv4()}` };
 }
 
-async function processPayment(paymentId, amount) {
+async function _processPaymentWithTimeout(paymentId, amount) {
   const gatewayCall = _simulate(paymentId, amount);
   const timeoutPromise = new Promise((_, reject) =>
     setTimeout(
@@ -74,10 +75,48 @@ async function processPayment(paymentId, amount) {
   return Promise.race([gatewayCall, timeoutPromise]);
 }
 
+class CircuitOpenError extends GatewayError {
+  constructor() {
+    super('Gateway circuit breaker is OPEN — failing fast', 'CIRCUIT_OPEN', true);
+    this.name = 'CircuitOpenError';
+  }
+}
+
+const breaker = new CircuitBreaker(_processPaymentWithTimeout, {
+  errorThresholdPercentage: config.circuitBreakerErrorThresholdPct,
+  resetTimeout: config.circuitBreakerResetTimeoutMs,
+  rollingCountTimeout: config.circuitBreakerRollingCountTimeoutMs,
+  volumeThreshold: config.circuitBreakerVolumeThreshold,
+  // Treat non-retryable user errors (INVALID_CARD etc.) as NOT failures —
+  // they don't indicate gateway health.
+  errorFilter: (err) => {
+    if (err instanceof GatewayError && err.retryable === false) return true;
+    return false;
+  },
+});
+
+breaker.fallback(() => {
+  throw new CircuitOpenError();
+});
+
+async function processPayment(paymentId, amount) {
+  return breaker.fire(paymentId, amount);
+}
+
+function getBreakerStats() {
+  return {
+    state: breaker.opened ? 'OPEN' : breaker.halfOpen ? 'HALF_OPEN' : 'CLOSED',
+    stats: breaker.stats,
+  };
+}
+
 module.exports = {
   processPayment,
   isRetryableError,
   GatewayError,
   GatewayTimeoutError,
+  CircuitOpenError,
   NON_RETRYABLE_CODES,
+  getBreakerStats,
+  _breaker: breaker, // exposed for tests
 };
