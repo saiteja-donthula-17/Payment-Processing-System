@@ -1,4 +1,5 @@
 const paymentService = require('../services/payment.service');
+const { enqueueProcessPayment, getQueueStats, getDeadLetterJobs } = require('../queue/payment.queue');
 
 async function createPayment(req, res, next) {
   try {
@@ -62,4 +63,39 @@ function toResponse(payment) {
   };
 }
 
-module.exports = { createPayment, getPayment };
+async function createPaymentAsync(req, res, next) {
+  try {
+    const { amount, currency, metadata } = req.body;
+    const idempotencyKey = req.idempotencyKey;
+
+    const created = await paymentService.createPayment({
+      amount,
+      currency,
+      metadata,
+      idempotencyKey,
+    });
+
+    await enqueueProcessPayment(created.id);
+
+    return res.status(202).json({
+      id: created.id,
+      status: created.status,
+      message: 'Payment accepted for asynchronous processing. Poll GET /payments/:id for the final status.',
+      pollUrl: `/payments/${created.id}`,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function queueStats(req, res, next) {
+  try {
+    const stats = await getQueueStats();
+    const dlq = await getDeadLetterJobs(10);
+    return res.json({ stats, deadLetterQueue: dlq });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { createPayment, getPayment, createPaymentAsync, queueStats };

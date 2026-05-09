@@ -14,6 +14,17 @@ router.post(
   validate(createPaymentSchema),
   controller.createPayment
 );
+
+router.post(
+  '/async',
+  paymentsLimiter,
+  idempotencyMiddleware,
+  validate(createPaymentSchema),
+  controller.createPaymentAsync
+);
+
+router.get('/queue/stats', controller.queueStats);
+
 router.get('/:id', readsLimiter, controller.getPayment);
 
 module.exports = router;

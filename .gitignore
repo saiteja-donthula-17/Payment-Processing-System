@@ -16,3 +16,6 @@ coverage/
 *.swo
 .tmp/
 tmp/
+
+# Personal study notes — local only, never push
+FLOWS.md

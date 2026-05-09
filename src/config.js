@@ -27,6 +27,11 @@ module.exports = {
   circuitBreakerRollingCountTimeoutMs: 10000,
   circuitBreakerVolumeThreshold: 5,
 
+  // BullMQ queue for async payment processing
+  paymentQueueName: 'payment-processing',
+  paymentQueueAttempts: parseInt(process.env.QUEUE_ATTEMPTS, 10) || 3,
+  paymentQueueBackoffMs: parseInt(process.env.QUEUE_BACKOFF_MS, 10) || 5000,
+
   maxRetries: parseInt(process.env.MAX_RETRIES, 10) || 3,
   retryBaseDelayMs: parseInt(process.env.RETRY_BASE_DELAY_MS, 10) || 500,
   retryCapMs: parseInt(process.env.RETRY_CAP_MS, 10) || 10000,
