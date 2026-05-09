@@ -15,6 +15,12 @@ module.exports = {
   // Lock must outlast worst-case processPayment (initial + 3 retries with exp backoff)
   paymentLockTtlMs: 60000,
 
+  // Rate limiting (per-IP)
+  rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000,
+  rateLimitPaymentsMax: parseInt(process.env.RATE_LIMIT_PAYMENTS_MAX, 10) || 100,
+  rateLimitWebhooksMax: parseInt(process.env.RATE_LIMIT_WEBHOOKS_MAX, 10) || 1000,
+  rateLimitReadsMax: parseInt(process.env.RATE_LIMIT_READS_MAX, 10) || 500,
+
   maxRetries: parseInt(process.env.MAX_RETRIES, 10) || 3,
   retryBaseDelayMs: parseInt(process.env.RETRY_BASE_DELAY_MS, 10) || 500,
   retryCapMs: parseInt(process.env.RETRY_CAP_MS, 10) || 10000,
