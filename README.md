@@ -60,14 +60,14 @@ A production-grade payment processing system in **Node.js + Express** that simul
 | 3 | Logging & observability | ✅ Pino structured JSON + correlation IDs |
 | 4 | Testing | ✅ 26 tests (jest + supertest) |
 
-### Bonus (optional)
+### Bonus (optional) — ALL DONE
 
-| # | Requirement | Status |
-|---|---|---|
-| 1 | Queue-based retry (BullMQ) | ⏳ Phase 3 |
-| 2 | Circuit breaker (Opossum) | ⏳ Phase 3 |
-| 3 | Rate limiting | ⏳ Phase 3 |
-| 4 | API docs (Swagger) | ⏳ Phase 3 |
+| # | Requirement | Status | Lives in |
+|---|---|---|---|
+| 1 | Queue-based retry (BullMQ) | ✅ | `src/queue/` + `POST /payments/async` |
+| 2 | Circuit breaker (Opossum) | ✅ | wrapped in `src/services/gateway.service.js` |
+| 3 | Rate limiting | ✅ | `src/api/middlewares/rateLimit.middleware.js` |
+| 4 | API docs (Swagger / OpenAPI) | ✅ | `/api-docs` + `src/api/swagger.js` |
 
 ---
 
@@ -201,14 +201,16 @@ npx prisma migrate dev
 ## 7. Running the server
 
 ```bash
-npm run dev          # nodemon (auto-restart on file changes)
+npm run dev          # API server with auto-restart (port 3000)
+npm run worker:dev   # async-payments worker (separate terminal)
 npm start            # plain node (production-style)
 NODE_ENV=production npm start   # JSON logs instead of pretty colorized
 ```
 
 The server listens on `http://localhost:3000`.
 
-Health check: `curl http://localhost:3000/health` → `{"status":"ok"}`
+- Health check: `curl http://localhost:3000/health` → `{"status":"ok"}`
+- **Interactive API docs: open `http://localhost:3000/api-docs` in your browser.**
 
 ---
 
@@ -225,6 +227,8 @@ Latest run: **26 / 26 passing.**
 ---
 
 ## 9. API reference
+
+> Interactive version available at `http://localhost:3000/api-docs` once the server is running.
 
 ### `POST /payments`
 

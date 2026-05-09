@@ -1,4 +1,6 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./api/swagger');
 const requestLogger = require('./api/middlewares/requestLogger.middleware');
 const paymentRoutes = require('./api/payment.routes');
 const webhookRoutes = require('./api/webhook.routes');
@@ -10,6 +12,16 @@ app.use(express.json());
 app.use(requestLogger);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Payment Processing System — API docs',
+  })
+);
+
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
 
 app.use('/payments', paymentRoutes);
 app.use('/webhooks', webhookRoutes);
