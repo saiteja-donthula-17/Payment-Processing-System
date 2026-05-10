@@ -1,5 +1,9 @@
 const paymentService = require('../services/payment.service');
-const { enqueueProcessPayment, getQueueStats, getDeadLetterJobs } = require('../queue/payment.queue');
+const {
+  enqueueProcessPayment,
+  getQueueStats,
+  getDeadLetterJobs,
+} = require('../queue/payment.queue');
 
 async function createPayment(req, res, next) {
   try {
@@ -80,7 +84,8 @@ async function createPaymentAsync(req, res, next) {
     return res.status(202).json({
       id: created.id,
       status: created.status,
-      message: 'Payment accepted for asynchronous processing. Poll GET /payments/:id for the final status.',
+      message:
+        'Payment accepted for asynchronous processing. Poll GET /payments/:id for the final status.',
       pollUrl: `/payments/${created.id}`,
     });
   } catch (error) {

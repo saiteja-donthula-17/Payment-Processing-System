@@ -52,10 +52,16 @@ async function idempotencyMiddleware(req, res, next) {
     return res.status(r.response.status).json(r.response.body);
   }
 
-  log.info({ event: 'idempotency_concurrent_wait', idempotency_key: key }, 'polling for in-progress request');
+  log.info(
+    { event: 'idempotency_concurrent_wait', idempotency_key: key },
+    'polling for in-progress request'
+  );
   const polled = await idempotencyService.pollForResult(key);
   if (polled) {
-    log.info({ event: 'idempotency_replay_after_poll', idempotency_key: key }, 'returning result from concurrent request');
+    log.info(
+      { event: 'idempotency_replay_after_poll', idempotency_key: key },
+      'returning result from concurrent request'
+    );
     res.setHeader('X-Idempotent-Replay', 'true');
     return res.status(polled.status).json(polled.body);
   }
@@ -63,7 +69,8 @@ async function idempotencyMiddleware(req, res, next) {
   log.warn({ event: 'idempotency_timeout', idempotency_key: key }, 'concurrent request timeout');
   return res.status(409).json({
     error: 'IDEMPOTENCY_TIMEOUT',
-    message: 'A concurrent request with this Idempotency-Key is still processing. Try again shortly.',
+    message:
+      'A concurrent request with this Idempotency-Key is still processing. Try again shortly.',
   });
 }
 

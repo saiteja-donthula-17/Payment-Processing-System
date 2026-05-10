@@ -10,7 +10,9 @@
     "worker:dev": "nodemon src/worker.js",
     "test": "jest --runInBand --forceExit",
     "test:unit": "jest --runInBand tests/unit",
-    "test:integration": "jest --runInBand --forceExit tests/integration"
+    "test:integration": "jest --runInBand --forceExit tests/integration",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\" \"*.{js,json,md}\""
   },
   "keywords": [
     "payments",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "jest": "^30.4.2",
     "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
     "prisma": "^5.22.0",
     "supertest": "^7.2.2"
   }

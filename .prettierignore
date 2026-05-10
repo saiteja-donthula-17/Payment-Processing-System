@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+coverage
+.env
+.env.*
+*.log
+package-lock.json
+prisma/migrations
+
+# Markdown has hand-crafted ASCII diagrams that Prettier will mangle
+*.md

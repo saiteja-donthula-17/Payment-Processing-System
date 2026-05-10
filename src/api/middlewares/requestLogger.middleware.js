@@ -3,8 +3,7 @@ const baseLogger = require('../../utils/logger');
 const { runWith } = require('../../utils/asyncContext');
 
 function requestLoggerMiddleware(req, res, next) {
-  const correlationId =
-    req.headers['x-correlation-id'] || `req-${uuidv4().slice(0, 8)}`;
+  const correlationId = req.headers['x-correlation-id'] || `req-${uuidv4().slice(0, 8)}`;
   const logger = baseLogger.child({ correlation_id: correlationId });
 
   req.correlationId = correlationId;

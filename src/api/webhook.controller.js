@@ -22,8 +22,7 @@ async function handleCallback(req, res, next) {
       });
     }
 
-    const { paymentId, status: requestedStatus, gatewayReference, eventType } =
-      req.body;
+    const { paymentId, status: requestedStatus, gatewayReference, eventType } = req.body;
 
     // 1. Duplicate check — at-least-once delivery means same webhookId may arrive multiple times.
     const existing = await prisma.webhookEvent.findUnique({

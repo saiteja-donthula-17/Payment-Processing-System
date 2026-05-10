@@ -52,12 +52,7 @@ function assertValidTransition(from, to) {
   }
 }
 
-async function createPayment({
-  amount,
-  currency = 'INR',
-  metadata = {},
-  idempotencyKey,
-}) {
+async function createPayment({ amount, currency = 'INR', metadata = {}, idempotencyKey }) {
   if (!idempotencyKey) {
     throw new Error('idempotencyKey is required');
   }
@@ -182,10 +177,7 @@ async function processPayment(paymentId) {
               'retry scheduled'
             );
             bumpRetryProgress(paymentId, event.attempt, errCode).catch((e) =>
-              log.error(
-                { event: 'retry_progress_bump_failed', err: e.message },
-                'bump failed'
-              )
+              log.error({ event: 'retry_progress_bump_failed', err: e.message }, 'bump failed')
             );
           } else if (event.status === 'non_retryable') {
             log.warn(

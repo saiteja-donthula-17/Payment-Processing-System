@@ -46,11 +46,7 @@ async function _simulate(paymentId, amount) {
 
   if (roll < 0.8) {
     await sleep(100 + Math.random() * 400);
-    throw new GatewayError(
-      'Transient gateway failure',
-      'GATEWAY_TRANSIENT_ERR',
-      true
-    );
+    throw new GatewayError('Transient gateway failure', 'GATEWAY_TRANSIENT_ERR', true);
   }
 
   if (roll < 0.9) {
@@ -67,10 +63,7 @@ async function _simulate(paymentId, amount) {
 async function _processPaymentWithTimeout(paymentId, amount) {
   const gatewayCall = _simulate(paymentId, amount);
   const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(
-      () => reject(new GatewayTimeoutError()),
-      config.gatewayTimeoutMs
-    )
+    setTimeout(() => reject(new GatewayTimeoutError()), config.gatewayTimeoutMs)
   );
   return Promise.race([gatewayCall, timeoutPromise]);
 }

@@ -8,10 +8,18 @@ jest.mock('../../src/config', () => ({
 const { executeWithRetry, MaxRetriesExceededError } = require('../../src/services/retry.engine');
 
 class TransientErr extends Error {
-  constructor() { super('transient'); this.code = 'GATEWAY_TRANSIENT_ERR'; this.retryable = true; }
+  constructor() {
+    super('transient');
+    this.code = 'GATEWAY_TRANSIENT_ERR';
+    this.retryable = true;
+  }
 }
 class HardErr extends Error {
-  constructor() { super('hard'); this.code = 'INVALID_CARD'; this.retryable = false; }
+  constructor() {
+    super('hard');
+    this.code = 'INVALID_CARD';
+    this.retryable = false;
+  }
 }
 
 // The retry engine reads isRetryableError from gateway.service.

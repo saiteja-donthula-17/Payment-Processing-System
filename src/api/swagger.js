@@ -60,9 +60,27 @@ const definition = {
           createdAt: '2026-05-10T06:58:23.196Z',
           processedAt: '2026-05-10T06:58:23.840Z',
           transitions: [
-            { from: null,         to: 'PENDING',    reason: 'created',          attempt: 0, at: '2026-05-10T06:58:23.234Z' },
-            { from: 'PENDING',    to: 'PROCESSING', reason: 'start_processing', attempt: 0, at: '2026-05-10T06:58:23.260Z' },
-            { from: 'PROCESSING', to: 'SUCCESS',    reason: 'gateway_success',  attempt: 1, at: '2026-05-10T06:58:23.840Z' },
+            {
+              from: null,
+              to: 'PENDING',
+              reason: 'created',
+              attempt: 0,
+              at: '2026-05-10T06:58:23.234Z',
+            },
+            {
+              from: 'PENDING',
+              to: 'PROCESSING',
+              reason: 'start_processing',
+              attempt: 0,
+              at: '2026-05-10T06:58:23.260Z',
+            },
+            {
+              from: 'PROCESSING',
+              to: 'SUCCESS',
+              reason: 'gateway_success',
+              attempt: 1,
+              at: '2026-05-10T06:58:23.840Z',
+            },
           ],
         },
       },
@@ -130,12 +148,20 @@ const definition = {
           201: {
             description: 'Payment processed successfully (SUCCESS)',
             headers: {
-              'X-Idempotent-Replay': { schema: { type: 'string' }, description: 'Present and "true" when this is a cached replay of a prior response.' },
+              'X-Idempotent-Replay': {
+                schema: { type: 'string' },
+                description: 'Present and "true" when this is a cached replay of a prior response.',
+              },
               'X-Correlation-Id': { schema: { type: 'string' } },
             },
             content: { 'application/json': { schema: { $ref: '#/components/schemas/Payment' } } },
           },
-          400: { description: 'Idempotency-Key header missing', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+          400: {
+            description: 'Idempotency-Key header missing',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } },
+            },
+          },
           409: { description: 'Idempotency lock contention or DB unique-key collision' },
           422: { description: 'Validation error or terminal payment FAILED' },
           429: { description: 'Rate limit exceeded' },
@@ -145,7 +171,8 @@ const definition = {
     '/payments/async': {
       post: {
         summary: 'Create a payment for asynchronous processing (BullMQ queue)',
-        description: 'Returns 202 immediately. Poll GET /payments/:id to see when it reaches SUCCESS/FAILED.',
+        description:
+          'Returns 202 immediately. Poll GET /payments/:id to see when it reaches SUCCESS/FAILED.',
         parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }],
         requestBody: {
           required: true,
@@ -186,11 +213,12 @@ const definition = {
     '/payments/{id}': {
       get: {
         summary: 'Fetch a payment with its full transition history',
-        parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-        ],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: {
-          200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/Payment' } } } },
+          200: {
+            description: 'OK',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Payment' } } },
+          },
           404: { description: 'Payment not found' },
         },
       },

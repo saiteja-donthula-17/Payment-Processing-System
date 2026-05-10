@@ -43,7 +43,8 @@ describe('Gateway circuit breaker', () => {
 
   test('CIRCUIT_OPEN error is thrown when open and breaker.fire() is called', async () => {
     breaker.open();
-    await expect(gateway.processPayment('test-id', 100))
-      .rejects.toMatchObject({ code: 'CIRCUIT_OPEN' });
+    await expect(gateway.processPayment('test-id', 100)).rejects.toMatchObject({
+      code: 'CIRCUIT_OPEN',
+    });
   });
 });

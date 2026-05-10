@@ -28,21 +28,18 @@ async function executeWithRetry(paymentId, fn, onAttempt) {
       lastError = error;
 
       if (!isRetryableError(error)) {
-        if (onAttempt)
-          onAttempt({ attempt, status: 'non_retryable', error });
+        if (onAttempt) onAttempt({ attempt, status: 'non_retryable', error });
         error.attempts = attempt;
         throw error;
       }
 
       if (attempt > config.maxRetries) {
-        if (onAttempt)
-          onAttempt({ attempt, status: 'max_retries_exceeded', error });
+        if (onAttempt) onAttempt({ attempt, status: 'max_retries_exceeded', error });
         throw new MaxRetriesExceededError(attempt, error);
       }
 
       const delay = calculateBackoffDelay(attempt);
-      if (onAttempt)
-        onAttempt({ attempt, status: 'retry_scheduled', error, delay });
+      if (onAttempt) onAttempt({ attempt, status: 'retry_scheduled', error, delay });
       await sleep(delay);
     }
   }

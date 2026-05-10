@@ -22,10 +22,7 @@ describe('calculateBackoffDelay (full jitter)', () => {
 
   test('respects the exponential ceiling for low attempts', () => {
     const attempt = 1;
-    const ceiling = Math.min(
-      config.retryCapMs,
-      config.retryBaseDelayMs * Math.pow(2, attempt)
-    );
+    const ceiling = Math.min(config.retryCapMs, config.retryBaseDelayMs * Math.pow(2, attempt));
     for (let i = 0; i < 200; i++) {
       const d = calculateBackoffDelay(attempt);
       expect(d).toBeLessThanOrEqual(ceiling);

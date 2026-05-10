@@ -53,10 +53,7 @@ describe('Idempotency', () => {
 
     const responses = await Promise.all(
       Array.from({ length: 5 }, () =>
-        request(app)
-          .post('/payments')
-          .set('Idempotency-Key', key)
-          .send({ amount: 100 })
+        request(app).post('/payments').set('Idempotency-Key', key).send({ amount: 100 })
       )
     );
 
